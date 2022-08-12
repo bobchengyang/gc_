@@ -13,13 +13,20 @@ cvx_begin quiet
 cvx_precision default
 cvx_precision
 
-n_sample=100;
-number_of_neighbor=2;
-noise_level=1.0;
+n_sample=50; % 50 100 150 200 as Table 1
+number_of_neighbor=2; % 1 or 2 as Table 1
+noise_level=2; % 1 1.5 2 as Table 1
 
 label=[ones(n_sample/2,1);-ones(n_sample/2,1)];
 
-rng(0);
+n_run=100;
+results=zeros(n_run,6);
+str=['table1_' num2str(n_sample) '_' num2str(number_of_neighbor) '_' num2str(noise_level) '.mat'];
+
+for i_run=0:n_run-1
+close all;
+disp(['i_run: ' num2str(i_run)]);
+rng(i_run);
 signal=label+randn(n_sample,1)*noise_level;
 figure();plot(1:n_sample,label);
 title('groundtruth');
@@ -85,3 +92,15 @@ disp('SNS ====================================================================')
 disp(['SNS error_count: ' num2str(error_count_sns/n_sample*100) '%']);
 disp(['SNS xlx obj: ' num2str(obj_xlx)]); 
 disp(['SNS obj: ' num2str(obj_sns)]);  
+
+results(i_run+1,:)=[error_count_sedumi ...
+                    err_count_sedumi_dual ...
+                    err_count_sedumi_dual_modified ...
+                    err_count_gdpa ...
+                    err_count_glr ...
+                    error_count_sns]/n_sample;
+end
+results_mean=mean(results);
+results(n_run+1,:)=results_mean;
+clearvars -except results str
+save(str);
