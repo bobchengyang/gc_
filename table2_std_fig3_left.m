@@ -2,7 +2,7 @@ clear all;
 clc;
 close all;
 rng('default');
-addpath('BQP-master\');
+addpath('BQP-master\BQP-master\');
 
 % cvx_precision low: [ϵ3/8,ϵ1/4,ϵ1/4]
 % cvx_precision medium: [ϵ1/2,ϵ3/8,ϵ1/4]
@@ -39,6 +39,7 @@ for dataset_i=1:17
     num_run0=10;
     num_run=num_run0*K;
     results=zeros(num_run,20);
+    results_eg=zeros(num_run,1);
     rng(0);
     indices = crossvalind('Kfold',label,K); % K-fold cross-validation
     result_seq_i=0;
@@ -168,12 +169,12 @@ for dataset_i=1:17
                                      err_count_glrbox   t_glrbox...
                                      err_count_glr      t_glr...
                                      error_count_sns t_sns];
-
+            results_eg(result_seq_i)=eigen_gap_gdpa;
 %             pause(1);
 
         end
     end 
-    clearvars -except dataset_i experiment_save_str results n_train n_test
+    clearvars -except dataset_i experiment_save_str results n_train n_test results_eg
     cvx_precision low;
     results(:,1:2:end-1)=(results(:,1:2:end-1)/n_test)*100;
     results(:,2:2:end)=results(:,2:2:end)*1000; % ms       

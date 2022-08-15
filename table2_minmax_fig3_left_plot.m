@@ -21,7 +21,7 @@ results_mean=zeros(n_dataset+1,n_results);
 
 for dataset_i=1:n_dataset
     [dataset_str] = get_dataset_name(dataset_i);
-    result_str=['results_' dataset_str '_min_max_scaling_aaai23_I.mat'];
+    result_str=['results_' dataset_str '_min_max_scaling_aaai23_I_eg.mat'];
     load(result_str);
     results_mean(dataset_i,:)=mean(results);   
 end

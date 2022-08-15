@@ -1,4 +1,4 @@
-function [current_obj,x_pred,err_count,u_vec,alpha,eigen_gap,t_orig_end] = ...
+function [current_obj,x_pred,err_count,u_vec,alpha,eg,t_orig_end] = ...
     gdpa(label,b_ind,n_sample,cL,u,alpha,sw,...
     rho)
 
@@ -24,6 +24,8 @@ dz_LP_test_init=-(db/2)*sccc;
 ynplus1=sum(y0)*1e0;
 dy_LP_test_init=[y0;ynplus1];
 alpha=sw*(ynplus1+sum(dz_LP_test_init));
+% alpha=sw*(ynplus1);
+% alpha=0;
 
 cL=cL*scalee;
 
@@ -162,7 +164,9 @@ while tol>tol_set
 %        -sum(z0(dz_ind_minus))...
 %        +mmm*sum(z0(dz_ind_plus))...
 %        );
-alpha=sw*(y0(n_sample+1)+sum(z0));    
+
+alpha=sw*(y0(n_sample+1)+sum(z0));    %%% important setting!!!
+% alpha=sw*(y0(n_sample+1));
     y=y0;
     z=z0;
     [updated_H] = construct_H(sw,n_sample,...
@@ -244,7 +248,13 @@ H_offdia(1:n_sample+1+1:end)=0;
 u_vec=diag(original_H)+sum(H_offdia,2);
 
 %% eigen-gap
-eigen_gap=min(eig(updated_H))-min(eig(original_H));
+mineigHbar=min(eig(updated_H));
+mineigH=min(eig(original_H));
+eg=abs(mineigHbar-mineigH);
+disp(['min eig H_bar: ' num2str(mineigHbar)]);
+disp(['min eig H: ' num2str(min(mineigH))]);
+disp(['gap: ' num2str(eg)]);
+
 
 % test_v=-1e4-200;
 % rr=zeros(100,2);
@@ -256,27 +266,27 @@ eigen_gap=min(eig(updated_H))-min(eig(original_H));
 rng(0);
 fv_H_0=randn(n_sample+1,1);
 % t_fv2=tic;
-[fv_H1,~] = ...
-    lobpcg_fv(...
-    fv_H_0,...
-    original_H,...
-    1e-16,...
-    1e3);
+% [fv_H1,~] = ...
+%     lobpcg_fv(...
+%     fv_H_0,...
+%     original_H,...
+%     1e-16,...
+%     1e3);
 % t_3=toc(t_fv2);
 t_orig_end=t_2;
-ene1=norm(fv_H1(length(b_ind)+1:end-1));
+% ene1=norm(fv_H1(length(b_ind)+1:end-1));
 [fv_H2,~] = ...
     lobpcg_fv(...
     fv_H_0,...
     original_H*1/scalee,...
     1e-16,...
     1e3);
-ene2=norm(fv_H2(length(b_ind)+1:end-1));
-if ene1<ene2
-   fv_H=fv_H1; 
-else
-    fv_H=fv_H2;
-end
+% ene2=norm(fv_H2(length(b_ind)+1:end-1));
+% if ene1<ene2
+   fv_H=fv_H2; 
+% else
+%     fv_H=fv_H2;
+% end
 disp(['energy in b_ind n_sample+1: ' num2str(norm(fv_H([b_ind n_sample+1])))...
     ' | energy in z: ' num2str(norm(fv_H(length(b_ind)+1:end-1)))]);
 

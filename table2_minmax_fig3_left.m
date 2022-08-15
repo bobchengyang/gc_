@@ -21,9 +21,7 @@ for dataset_i=1:17
     %%=======change the following things for experiments======
     [dataset_str,read_data] = get_data(dataset_i);
     rho=0; % PSD parameter for gdpa---align Gershgorin discs' left ends to 0's
-    experiment_save_str=['results\results_' dataset_str '_min_max_scaling_aaai23_I.mat'];
-
-    
+    experiment_save_str=['results\results_' dataset_str '_min_max_scaling_aaai23_I.mat'];    
     %%========================================================
     
     label=read_data(:,end);
@@ -35,6 +33,7 @@ for dataset_i=1:17
     num_run0=10;
     num_run=num_run0*K;
     results=zeros(num_run,20);
+    results_eg=zeros(num_run,1);
     rng(0);
     indices = crossvalind('Kfold',label,K); % K-fold cross-validation
     result_seq_i=0;
@@ -103,6 +102,7 @@ for dataset_i=1:17
             %% CDCS (20)
             disp('CDCS (20)====================================================================');
             alpha=1e15;
+%             alpha=0;
             sw=0.5;
             u=1;        
             [obj_cdcs20,error_count_cdcs20,...
@@ -164,12 +164,12 @@ for dataset_i=1:17
                                      err_count_glrbox   t_glrbox...
                                      err_count_glr      t_glr...
                                      error_count_sns t_sns];
-
+            results_eg(result_seq_i)=eigen_gap_gdpa;
 %             pause(1);
 
         end
     end 
-    clearvars -except dataset_i experiment_save_str results n_train n_test
+    clearvars -except dataset_i experiment_save_str results n_train n_test results_eg
     cvx_precision low;
     results(:,1:2:end-1)=(results(:,1:2:end-1)/n_test)*100;
     results(:,2:2:end)=results(:,2:2:end)*1000; % ms       
